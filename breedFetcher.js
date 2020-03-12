@@ -1,26 +1,41 @@
 const request = require("request");
 
-let cmdArgs = process.argv.slice(2);
-
-//user input
-let url = 'https://api.thecatapi.com/v11/breeds/search?q=';
-let querySearch = cmdArgs[0];
-
-request(`${url}${querySearch}`, function(error, response, body) {
-  if (error) {
-    console.error('error:', error.code);
-  } else if (JSON.parse(body).status < 200 || JSON.parse(body).status > 299) {
-    console.log('NoooOOOooOO! something went meawy meawy wrong!');
-    console.log('This is a purrfect console.log message');
-  } else {
-    const data = JSON.parse(body);
-    if (data[0] === undefined) {
-      return console.log(`Opsie! ${querySearch} does not yet exist!`);
+// get info and make an object
+const fetchBreedDescription = function(breedName, callback) {
+  //user input
+  let url = 'https://api.thecatapi.com/v1/breeds/search?q=';
+  request(`${url}${breedName}`, function(error, response, body) {
+    // If something goes wrong
+    if (error) {
+      callback(error, null);
+      // return `error: , ${error.code}`;
+    } else if (JSON.parse(body).status < 200 || JSON.parse(body).status > 299) {
+      callback('NoooOOOooOO! something went meawy meawy wrong!', null);
+      // return `NoooOOOooOO! something went meawy meawy wrong!`;
     } else {
-      console.log(data[0]["description"]);
+      // If all goes well
+      const data = JSON.parse(body);
+      if (data[0] === undefined) {
+        callback(null, `Opsie! ${breedName} does not yet exist!`);
+      } else {
+        callback(null, data[0]["description"]);
+      }
     }
-  }
-});
+    
+  });
+};
+
+// fetchBreedDescription(catBreed, outPutInfo);
+
+module.exports = { fetchBreedDescription };
+
+
+// if (error) {
+//   console.error('error:', error.code);
+// } else if (JSON.parse(body).status < 200 || JSON.parse(body).status > 299) {
+//   console.log('NoooOOOooOO! something went meawy meawy wrong!');
+//   console.log('This is a purrfect console.log message');
+// } 
 
 
 // console.error('error:', error); // Print the error if one occurred
